@@ -3,26 +3,26 @@
 #define DFA_H
 #include <vector>
 #include <memory>
-#include "./FATuples.h"
+#include "./fa_state.h"
 class DFA
 {
   private:
-    std::vector<std::shared_ptr<FATuples>> states;
-    std::shared_ptr<FATuples> start;
-    std::shared_ptr<FATuples> current;
+    std::vector<std::shared_ptr<FAState>> states;
+    std::shared_ptr<FAState> start;
+    std::shared_ptr<FAState> current;
 
   public:
-    DFA()
+    explicit DFA()
     {
     }
-    DFA(std::vector<std::shared_ptr<FATuples>> states,
-        std::shared_ptr<FATuples> start)
+    explicit DFA(std::vector<std::shared_ptr<FAState>> states,
+        std::shared_ptr<FAState> start)
     {
         setStates(states);
         setStart(start);
     }
 
-    void setStates(std::vector<std::shared_ptr<FATuples>> states)
+    void setStates(std::vector<std::shared_ptr<FAState>> states)
     {
         if (states.size())
         {
@@ -34,7 +34,7 @@ class DFA
         }
     }
 
-    void setStart(std::shared_ptr<FATuples> start)
+    void setStart(std::shared_ptr<FAState> start)
     {
         if (start != nullptr)
         {
@@ -65,10 +65,10 @@ class DFA
         return current;
     }
 
-    std::shared_ptr<FATuples> next(char c)
+    std::shared_ptr<FAState> next(char c)
     {
         int state = this->current->transition(c);
-        this->current = state != -1 ? states.at(state) : FATuples::rejected();
+        this->current = state != -1 ? states.at(state) : FAState::rejected();
         return this->current;
     }
 
@@ -80,7 +80,7 @@ class DFA
             if (current->isRejected)
                 return false;
             int state = current->transition(character);
-            current = state != -1 ? states.at(state) : FATuples::rejected();
+            current = state != -1 ? states.at(state) : FAState::rejected();
         }
 
         if (current->isFinal)

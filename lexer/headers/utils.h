@@ -55,6 +55,19 @@ void withTime(T callback, std::string task = "Task")
     std::cout << task << " Completed In: " << diff.count() << " s\n";
 }
 
+std::string nodeSetToString(std::set<int> set)
+{
+    if (!set.size())
+        return "###";
+    std::vector<int> v(set.begin(), set.end());
+    return std::accumulate(std::next(v.begin()), v.end(), std::to_string(v[0]), [](std::string acc, int name) {
+        return acc + "-" + std::to_string(name);
+    });
+}
+
+// std::string intSetToNodeSet
+
+
 } // namespace utils
 
 #endif // UTILS_H

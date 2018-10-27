@@ -1,15 +1,15 @@
 
-#if !defined(FATUPLES_H)
-#define FATUPLES_H
+#if !defined(FASTATE_H)
+#define FASTATE_H
 #include <memory>
 #include <functional>
-struct FATuples
+struct FAState
 {
-    static std::shared_ptr<FATuples> rejected()
+    static std::shared_ptr<FAState> rejected()
     {
-        return std::make_shared<FATuples>(false, true);
+        return std::make_shared<FAState>(false, true);
     }
-    FATuples()
+    FAState()
     {
         isFinal = false;
         isRejected = false;
@@ -18,14 +18,14 @@ struct FATuples
         };
     }
 
-    FATuples(bool isFinal, bool isRejected, int (*transition)(char))
+    FAState(bool isFinal, bool isRejected, int (*transition)(char))
     {
         this->isFinal = isFinal;
         this->isRejected = isRejected;
         this->transition = transition;
     }
 
-    FATuples(bool isFinal, bool isRejected = false)
+    FAState(bool isFinal, bool isRejected = false)
     {
         this->isFinal = isFinal;
         this->isRejected = isRejected;
@@ -38,4 +38,4 @@ struct FATuples
     std::function<int(char)> transition;
 };
 
-#endif // FATUPLES_H
+#endif // FASTATE_H
