@@ -7,6 +7,28 @@
 #include <set>
 #include "utils.h"
 
+std::string spreadSquareBrackets(std::string re)
+{
+    std::string normalString = "";
+    for (auto it = re.begin(); it != re.end(); ++it)
+    {
+
+        if (*it == '[')
+        {
+            normalString += "(";
+            while (*it != ']')
+            {
+                
+            }
+            normalString += ")";
+        }
+        else
+        {
+            normalString += *it;
+        }
+    }
+}
+
 std::pair<std::string, std::set<int>> reToPostfix(std::string re)
 {
     std::string postfix = "";
@@ -15,7 +37,6 @@ std::pair<std::string, std::set<int>> reToPostfix(std::string re)
     auto prevChar = '\0';
     for (auto i = re.begin(); i != re.end(); ++i)
     {
-
         if (utils::isOperand(*i))
         {
             if (*i != '#' && *i != '$')
