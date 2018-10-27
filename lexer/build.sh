@@ -1,0 +1,1 @@
+mingw32-g++.exe -g -std=c++1z main.cpp
