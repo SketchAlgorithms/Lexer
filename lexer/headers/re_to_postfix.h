@@ -6,7 +6,11 @@
 #include "./utils.h"
 struct Expression
 {
-    Expression() {}
+    Expression()
+    {
+        this->type = "";
+        this->value = "";
+    }
     explicit Expression(std::string type,
                         std::string value)
     {
@@ -29,14 +33,10 @@ std::vector<Expression> reToPostFix(std::string re)
     Expression prev;
     for (auto i = re.begin(); i != re.end(); ++i)
     {
-
-        if (utils::isOperand(*i) || utils::isEscapeChar(*i))
+        if (*i == '*')
+            std::cout << "Enter" << std::endl;
+        if (utils::isOperand(*i) || utils::isEscapeChar(*i) || *i == '[')
         {
-            if (utils::isEscapeChar(*i))
-            {
-                ++i;
-            }
-
             if (prev.type == "OPERAND" || prev.value == "*" || prev.value == ")")
             {
                 char c = '.';
@@ -48,8 +48,30 @@ std::vector<Expression> reToPostFix(std::string re)
 
                 stack.push_back(Expression("OPERATOR", c));
             }
-            prev = Expression("OPERAND", *i);
-            postfix.push_back(prev);
+
+            if (*i == '[')
+            {
+                std::string value = "";
+                *i++;
+                while (*i != ']' && i != re.end())
+                {
+                    value += *i;
+                    *i++;
+                }
+                if (i == re.end())
+                    throw "Invalid RE";
+                prev = Expression("OPERAND", value);
+                postfix.push_back(prev);
+            }
+            else
+            {
+                if (utils::isEscapeChar(*i))
+                {
+                    ++i;
+                }
+                prev = Expression("OPERAND", *i);
+                postfix.push_back(prev);
+            }
         }
         else if (utils::isOperator(*i))
         {
@@ -68,6 +90,7 @@ std::vector<Expression> reToPostFix(std::string re)
                 char c = '.';
                 while (!stack.empty() && utils::precedence(c) <= utils::precedence(stack.back().value.at(0)))
                 {
+                    postfix.push_back(stack.back());
                     stack.pop_back();
                 }
 
@@ -94,6 +117,7 @@ std::vector<Expression> reToPostFix(std::string re)
         postfix.push_back(stack.back());
         stack.pop_back();
     }
+    int a;
     return postfix;
 }
 #endif // RE_TO_POSTFIX_H

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <chrono>
 #include <string>
+#include <array>
 #include <numeric>
 #include <algorithm>
 
@@ -50,12 +51,15 @@ int precedence(char op)
 template <typename T>
 void withTime(T callback, std::string task = "Task")
 {
-    std::cout  << std::endl<< "\n-----" << task << "-----" << std::endl;
+    std::cout << std::endl
+              << "\n-----" << task << "-----" << std::endl;
     auto start = std::chrono::system_clock::now();
     callback();
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> diff = end - start;
-    std::cout << std::endl << std::endl << task << " Completed In: " << diff.count() << " s\n";
+    std::cout << std::endl
+              << std::endl
+              << task << " Completed In: " << diff.count() << " s\n";
 }
 
 std::string nodeSetToString(std::set<int> set)
@@ -74,9 +78,41 @@ std::function<int(char)> getTransition(std::vector<std::pair<std::string, int>> 
     return [trans](char alpha) {
         for (auto it = trans.begin(); it != trans.end(); ++it)
         {
+            const auto str = (*it).first;
+            const int strLength = str.length();
+            const auto state = (*it).second;
+            if (strLength == 1)
+            {
+                if (str.at(0) == alpha)
+                    return (*it).second;
+            }
+            else
+            {
+                std::string group = "";
+                std::vector<std::array<int, 2>> ranges;
+                for (int i = 0; i < strLength; ++i)
+                {
+                    if (i + 2 < strLength && str[i + 1] == '-')
+                    {
+                        if (str[i] > str[i + 2])
+                            throw "Invalid Regular Expression Range";
+                        ranges.push_back({str[i], str[i + 2]});
+                    }
+                    else
+                    {
+                        group += str[i];
+                    }
+                }
 
-            if ((*it).first.at(0) == alpha)
-                return (*it).second;
+                if (group.find(alpha) != std::string::npos)
+                    return state;
+                for (auto it = ranges.begin(); it != ranges.end(); ++it)
+                {
+                    auto range = (*it);
+                    if (alpha >= range[0] && alpha <= range[1])
+                        return state;
+                }
+            }
         }
         return -1;
     };
