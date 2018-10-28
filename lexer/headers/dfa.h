@@ -3,7 +3,7 @@
 #define DFA_H
 #include <vector>
 #include <memory>
-#include "./fa_state.h"
+#include "fa_state.h"
 class DFA
 {
   private:

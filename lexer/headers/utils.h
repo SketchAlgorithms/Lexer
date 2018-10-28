@@ -6,6 +6,9 @@
 #include <string>
 #include <numeric>
 #include <algorithm>
+
+#include <functional>
+
 namespace utils
 {
 
@@ -47,12 +50,12 @@ int precedence(char op)
 template <typename T>
 void withTime(T callback, std::string task = "Task")
 {
-    std::cout << "\n-----" << task << "-----" << std::endl;
+    std::cout  << std::endl<< "\n-----" << task << "-----" << std::endl;
     auto start = std::chrono::system_clock::now();
     callback();
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> diff = end - start;
-    std::cout << task << " Completed In: " << diff.count() << " s\n";
+    std::cout << std::endl << std::endl << task << " Completed In: " << diff.count() << " s\n";
 }
 
 std::string nodeSetToString(std::set<int> set)
@@ -65,8 +68,19 @@ std::string nodeSetToString(std::set<int> set)
     });
 }
 
-// std::string intSetToNodeSet
+std::function<int(char)> getTransition(std::vector<std::pair<std::string, int>> trans)
+{
 
+    return [trans](char alpha) {
+        for (auto it = trans.begin(); it != trans.end(); ++it)
+        {
+
+            if ((*it).first.at(0) == alpha)
+                return (*it).second;
+        }
+        return -1;
+    };
+}
 
 } // namespace utils
 

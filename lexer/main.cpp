@@ -10,9 +10,16 @@ int main(int argc, char const *argv[])
     reToPostFix(R"(123\.)");
     reToPostFix(R"(123\\)");
     reToPostFix(R"(\+\.\*)");
+
+    utils::withTime([]() {
+        auto dfa = directMethod(reToPostFix(R"(a(a*|b*)*bba$)"));
+        std::cout << dfa.etf("");
+    },
+
+                    "REPOSTFIX");
+    // directMethod( reToPostFix(R"((a|#)bc*$)"));
+    // auto dfa = directMethod( );
     
-    directMethod( reToPostFix(R"((a|#)bc*$)"));
-    directMethod( reToPostFix(R"((a|b)*a$)"));
 
     return 0;
 }

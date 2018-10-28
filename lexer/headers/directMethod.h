@@ -25,49 +25,81 @@ struct Node
     }
 };
 
-void nodesToSate(std::set<int> startSet, std::vector<std::pair<std::set<int>, Expression>> nodes)
+DFA nodesToSate(std::set<int> startSet, std::vector<std::pair<std::set<int>, Expression>> nodes)
 {
+    // TO Determine Final Node
+    const int finalNode = nodes.size() - 1;
+    // Keeping Track of found States and there positions
+    std::unordered_map<std::string, int> uSets;
+    // Adding the first State
+    auto startKey = utils::nodeSetToString(startSet);
+    auto stateCount = 0;
+    uSets[startKey] = stateCount++;
 
-    std::set<std::set<int>> foundSets = {startSet};
-    std::deque<std::pair<std::set<int>, int>> remaining = {std::make_pair(startSet, 0)};
-    std::vector<std::pair<std::set<int>, int>> vecSets = {std::make_pair(startSet, 0)};
-
+    // remaining sets to be marked
+    std::deque<std::set<int>> remaining = {startSet};
+    // Contains Sets whether they are final or not
+    std::vector<bool> finalState = {};
+    // Counts how many times the loop enter the inner most loop
+    long count = 0;
+    // Keeping track of nodes comming out as marked
+    int nodeCount = 0;
+    // Keeps track of transition
     std::vector<std::vector<std::pair<std::string, int>>> stateTransition;
+
+    // Looping While all the found sets are not marked
     while (!remaining.empty())
     {
-        auto mark = remaining.front().first;
-        auto markIndex = remaining.front().second;
+        // Checking if the set is final
+        auto isFinal = false;
+        // the marked set
+        auto mark = remaining.front();
+        // Its Index
+        auto markIndex = nodeCount++;
+        // Removing from the queue
         remaining.pop_front();
+        // Initializing transition
         stateTransition.push_back({});
+        // Making a set so that un necessary comparisions are not mafe
         std::set<int> foundTransition = {};
+        // Iterating the nodes in set
         for (auto it = mark.begin(); it != mark.end(); ++it)
         {
+            // If the node contains final node
+            if ((*it) == finalNode)
+                isFinal = true;
+            // if already marked continue
             if (foundTransition.find(*it) != foundTransition.end())
                 continue;
+            //initializing next state
             std::set<int> transState = nodes[*it].first;
+            // Transition Alphabet
             std::string alphabet = nodes[*it].second.value;
-            auto jt = mark.begin();
-
+            // Checking if others states have transition
             for (auto jt = std::next(it); jt != mark.end(); ++jt)
             {
+                // Variable checking loop enter count
+                count++;
+                // if the node has same alphabet
                 if (nodes[*jt].second.value == alphabet)
                 {
+                    // merge the set
                     transState.insert(nodes[*jt].first.begin(), nodes[*jt].first.end());
                     foundTransition.insert(*jt);
                 }
             }
+            // If the set is not null
             if (transState.size())
             {
-                auto iter = std::find_if(vecSets.begin(), vecSets.end(), [transState](auto a) {
-                    return a.first == transState;
-                });
+                // Check if node found else add it to uSets
+                auto key = utils::nodeSetToString(transState);
+                auto iter = uSets.find(key);
                 int index;
-                if (iter == vecSets.end())
+                if (iter == uSets.end())
                 {
-
-                    index = vecSets.size();
-                    vecSets.push_back(std::make_pair(transState, index));
-                    remaining.push_back(std::make_pair(transState, index));
+                    index = stateCount;
+                    uSets[key] = stateCount++;
+                    remaining.push_back(transState);
                 }
                 else
                     index = (*iter).second;
@@ -75,14 +107,26 @@ void nodesToSate(std::set<int> startSet, std::vector<std::pair<std::set<int>, Ex
                 stateTransition.at(markIndex).push_back(std::make_pair(alphabet, index));
             }
         }
+        // Pushing if Final
+        finalState.push_back(isFinal);
     }
 
+    std::cout << "Loop Enter: " << count << std::endl;
+    std::cout << "Nodes Count " << nodes.size() << std::endl;
     std::vector<std::shared_ptr<FAState>> dStates;
     const int dfaLength = stateTransition.size();
 
     for (int i = 0; i < dfaLength; ++i)
         dStates.push_back(std::make_shared<FAState>());
     DFA dfa(dStates, dStates[0]);
+
+    for (int i = 0; i < dfaLength; ++i)
+    {
+        dStates[i]->isFinal = finalState.at(i);
+        dStates[i]->transition = utils::getTransition(stateTransition[i]);
+    }
+    std::cout << "DFA STATES: " << dStates.size() << std::endl;
+    return dfa;
 }
 Node kleeneClosure(Node op1)
 {
@@ -172,9 +216,7 @@ DFA directMethod(std::vector<Expression> postfix)
             stack.push_back(unionPlus(op2, op1));
         }
     }
-
-    nodesToSate(stack.front().firstPos, nodes);
-    return DFA();
+    return nodesToSate(stack.front().firstPos, nodes);
 }
 
 #endif // DIRECT_METHOD_H
