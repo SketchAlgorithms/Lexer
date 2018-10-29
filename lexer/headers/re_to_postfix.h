@@ -33,8 +33,7 @@ std::vector<Expression> reToPostFix(std::string re)
     Expression prev;
     for (auto i = re.begin(); i != re.end(); ++i)
     {
-        if (*i == '*')
-            std::cout << "Enter" << std::endl;
+    
         if (utils::isOperand(*i) || utils::isEscapeChar(*i) || *i == '[')
         {
             if (prev.type == "OPERAND" || prev.value == "*" || prev.value == ")")

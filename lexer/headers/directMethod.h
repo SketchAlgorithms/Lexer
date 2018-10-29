@@ -111,8 +111,8 @@ DFA nodesToSate(std::set<int> startSet, std::vector<std::pair<std::set<int>, Exp
         finalState.push_back(isFinal);
     }
 
-    std::cout << "Loop Enter: " << count << std::endl;
-    std::cout << "Nodes Count " << nodes.size() << std::endl;
+    // std::cout << "Loop Enter: " << count << std::endl;
+    // std::cout << "Nodes Count " << nodes.size() << std::endl;
     std::vector<std::shared_ptr<FAState>> dStates;
     const int dfaLength = stateTransition.size();
 
@@ -125,7 +125,7 @@ DFA nodesToSate(std::set<int> startSet, std::vector<std::pair<std::set<int>, Exp
         dStates[i]->isFinal = finalState.at(i);
         dStates[i]->transition = utils::getTransition(stateTransition[i]);
     }
-    std::cout << "DFA STATES: " << dStates.size() << std::endl;
+    // std::cout << "DFA STATES: " << dStates.size() << std::endl;
     return dfa;
 }
 Node kleeneClosure(Node op1)

@@ -337,7 +337,7 @@ public:
     this->position = lookAhead + 1;
     this->column += literal.length();
     tokenCount[STRING]++;
-    return std::make_shared<Token>(STRING, literal, line, column);
+    return std::make_shared<Token>(STRING, literal, line, column); 
   }
   /**
    * summary - returns Number Token 

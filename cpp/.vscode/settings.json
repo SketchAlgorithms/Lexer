@@ -54,5 +54,6 @@
         "xmemory0": "cpp",
         "xstddef": "cpp",
         "xtr1common": "cpp"
-    }
+    },
+    "workbench.colorTheme": "One Dark Pro"
 }

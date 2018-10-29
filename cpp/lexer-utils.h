@@ -134,7 +134,6 @@ FAState *numberFSM()
     return startState.first;
 }
 
-
 FAState *multiLineCommentFSM()
 {
     auto pregex = reToPostfix("(abc*ba)$");
