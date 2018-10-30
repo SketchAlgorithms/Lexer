@@ -78,9 +78,7 @@ DFA getMultiLine()
     auto q2 = std::make_shared<FAState>();
     auto q3 = std::make_shared<FAState>();
     auto q4 = std::make_shared<FAState>();
-    auto q5 = std::make_shared<FAState>();
-    q5->isFinal = true;
-    DFA a({q0, q1, q2, q3, q4, q5}, q0);
+    DFA a({q0, q1, q2, q3, q4}, q0);
     q0->transition = [](char a) {
         if (a == '/')
             return 1;
@@ -92,18 +90,19 @@ DFA getMultiLine()
         return -1;
     };
     q2->transition = [](char a) {
-        return 3;
+        if (a == '*')
+            return 3;
+        return 2;
     };
     q3->transition = [](char a) {
-        if (a == '*')
-            return 4;
-        return 3;
-    };
-    q4->transition = [](char a) {
         if (a == '/')
-            return 5;
-        return -1;
+            return 4;
+        if (a == '*')
+            return 3;
+        return 2;
     };
+    q4->isFinal = true;
+    
 
     return a;
 }

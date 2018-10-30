@@ -62,6 +62,22 @@ public:
     {
       return processBracket();
     }
+    else if (character == '/')
+    {
+      if ((position + 1) < input.length())
+      {
+        const auto nextChar = input.at(position + 1);
+        if (nextChar == '/')
+          return processSingleLineComment();
+        if (nextChar == '*')
+          return processMultiLineComment();
+      }
+      // if (position > 0 && !lex::isAlphabet(input.at(position)) && !lex::isDigit(input.at(position)))
+      // {
+      //   return processRegExp();
+      // }
+      return processOperator();
+    }
     else if (tokenizer.isOperator(character))
     {
       return processOperator();
@@ -271,6 +287,66 @@ private:
     this->column += acceptedNumber.length();
     tokenCount[NUMBER]++;
     return Token(NUMBER, acceptedNumber, line, column);
+  }
+
+  /**
+   * summary - returns single line comment
+   * @method
+   * @return {std::shared_ptr<Token>} - A Token
+  */
+  Token processSingleLineComment()
+  {
+    std::string comment = "";
+    auto startColumn = column;
+    char character = input.at(position);
+    while (character != '\n')
+    {
+      comment += character;
+
+      if (++position >= input.length())
+        break;
+      character = input.at(position);
+    }
+    position++;
+    column = 1;
+
+    tokenCount[COMMENT]++;
+    return Token(COMMENT, comment, line++, startColumn);
+  }
+  /**
+   * summary - returns multi line comment
+   * @method
+   * @return {std::shared_ptr<Token>} - A Token
+  */
+  Token processMultiLineComment()
+  {
+    std::string comment = "";
+    auto startColumn = column;
+    auto startLine = line;
+    char character;
+    auto dfa = tokenizer.multiLineCommentMatch;
+    auto currentState = dfa.getStart();
+    do
+    {
+      column++;
+      character = input.at(position);
+      // std::cout << character;
+      if (character == '\n')
+      {
+        line++;
+        column = 1;
+      }
+      comment += character;
+
+      if (++position >= input.length())
+        break;
+
+      currentState = dfa.next(character);
+
+    } while (!currentState->isFinal);
+
+    tokenCount[COMMENT]++;
+    return Token(COMMENT, comment, startLine, startColumn);
   }
 
   /**
