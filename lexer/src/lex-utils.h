@@ -7,6 +7,7 @@
 #include <string>
 #include "../headers/regexp.h"
 #include "token.h"
+#include <sstream>
 namespace lex
 {
 std::string tokenString[11] =
@@ -102,7 +103,6 @@ DFA getMultiLine()
         return 2;
     };
     q4->isFinal = true;
-    
 
     return a;
 }
@@ -121,6 +121,20 @@ void tokenPrinter(Token token, T &logFile)
     if (token.extra != "")
         logFile << "Extra: " << token.extra << std::endl;
     logFile << "=====================================\n\n";
+}
+
+std::string tokenJSON(Token token)
+{
+    std::stringstream JSON;
+    JSON << "{";
+    JSON << "\"token\": \"" << tokenString[token.type] << "\",";
+    JSON << "\"subType\": \"" << token.subType << "\",";
+    JSON << "\"value\": \"" << token.value << "\",";
+    JSON << "\"column\": \"" << token.column << "\",";
+    JSON << "\"line\": \"" << token.line << "\",";
+    JSON << "\"extra\": \"" << token.line << "\"";
+    JSON << "}";
+    return JSON.str();
 }
 
 } // namespace lex

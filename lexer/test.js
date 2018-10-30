@@ -56,6 +56,6 @@ export const updateDoc = curry(
  *
  * @param {docRef} docRef - DocRef to be Deleted
  * @returns {Task} - fork (rej(err),res())
- */
-export const deleteDoc = docRef =>
+ */export const deleteDoc = docRef =>
   new Task((rej, res) => docRef.delete().then(res, rej));
+  

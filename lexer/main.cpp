@@ -23,12 +23,13 @@ int main(int argc, char const *argv[])
 
     lex::Tokenizer t;
     lex::Lexer lexer(t, input);
-    auto next = lexer.nextToken();
-    while (next.type != lex::TokenType::EOT)
-    {
-        lex::tokenPrinter(next,logFile);
-        next = lexer.nextToken();
-    }
+    logFile << lexer.toString();
+    // auto next = lexer.nextToken();
+    // while (next.type != lex::TokenType::EOT)
+    // {
+    //     lex::tokenPrinter(next,logFile);
+    //     next = lexer.nextToken();
+    // }
 
     return 0;
 }

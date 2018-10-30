@@ -6,6 +6,7 @@
 #include "token.h"
 #include "lex-utils.h"
 #include "tokenizer.h"
+#include <sstream>
 namespace lex
 {
 
@@ -19,7 +20,7 @@ public:
     * @constructor
     *  Lexer()
     */
-  Lexer(Tokenizer tokenizer, std::string input = "")
+  explicit Lexer(Tokenizer tokenizer, std::string input = "")
   {
     this->tokenCount = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     this->position = 0;
@@ -336,7 +337,8 @@ private:
         line++;
         column = 1;
       }
-      comment += character;
+      else
+        comment += character;
 
       if (++position >= input.length())
         break;
@@ -376,6 +378,52 @@ private:
     }
   }
 
+public:
+  std::string toString()
+  {
+    std::stringstream file;
+    file << " <div class=\"snippet\"> <style scoped> * { margin: 0; padding: 0; box-sizing: border-box; font-family: monospace; } .KEYWORD { color: #45a1ce; } .IDENTIFIER { color: black; } .NUMBER { color: purple; } .OPERATOR { color: #eaaf00; } .DELIMETER { color: #0004b7; } .STRING { color: green; } .COMMENT { color: #5050ff; font-style: italic; } .UNDEF { text-decoration: underline; color: red; } .snippet { background: white; padding: 10px; display: flex; align-items: stretch; overflow: auto; } .snippet .line div::after { content: \".\" } .snippet .line { padding-right: 10px; height: 100%; border-right: 2px solid red; user-select: none; } pre { padding-left: 1em; } </style><div class=\"line\"> <div>1</div> <div>2</div> <div>3</div> <div>4</div> <div>5</div> <div>6</div> <div>7</div> <div>8</div> <div>9</div> <div>10</div> <div>11</div> <div>12</div> </div><pre>";
+    auto token = nextToken();
+    int line = 1;
+    int column = 1;
+
+    auto addLine = [&](int l) mutable {
+      const auto diff = l - line;
+      for (int i = 0; i < diff; i++)
+      {
+        file << "\n";
+      }
+      line = l;
+      column = 1;
+    };
+    auto addColumn = [&](int col) mutable {
+      const auto diff = col - column;
+      for (int i = 0; i < diff; i++)
+      {
+        file << " ";
+      }
+    };
+    while (token.type != EOT)
+    {
+
+      if (line != token.line)
+        addLine(token.line);
+      if (column != token.column)
+        addColumn(token.column);
+      file << "<span class=\"" << tokenString[token.type] << "\">" << token.value << "</span>";
+      column = token.column + token.value.length();
+
+      token = nextToken();
+    }
+    file << "</pre></div>";
+    std::string data = file.str();
+    return data;
+  }
+
+  void setInput(std::string s){
+    input=s;
+
+  }
 private:
   int position;
   int line;
