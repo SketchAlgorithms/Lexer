@@ -26,14 +26,69 @@ struct Expression
     std::string value;
 };
 
+std::string normalize(std::string str)
+{
+    std::string temp = "";
+    const int strLength = str.length();
+    for (int i = 0; i < strLength; ++i)
+    {
+        if (str[i] == '[')
+        {
+            ++i;
+            std::string value = "(";
+            while (str[i] != ']' && i < strLength)
+            {
+                if (i + 2 < strLength && str[i + 1] == '-')
+                {
+                    if (str[i] > str[i + 2])
+                        throw "Invalid Regular Expression Range";
+                    value += "(\\";
+                    value.push_back(str[i]);
+                    value.push_back('|');
+                    for (char j = str[i] + 1; j <= str[i + 2]; ++j)
+                    {
+                        value.push_back('\\');
+                        value.push_back(j);
+                        if (j != str[i + 2])
+                            value += "|";
+                    }
+                    value += ")";
+                    if (i + 3 < strLength && str[i + 3] != ']')
+                        value.push_back('|');
+                    i += 2;
+                }
+                else
+                {
+                    
+                    value.push_back('\\');
+                    value.push_back(str[i]);
+                    if (i + 1 < strLength && str[i + 1] != ']')
+                        value += "|";
+                }
+                i++;
+            }
+            if (i >= strLength)
+                throw "Invalid RE";
+            temp += value + ")";
+        }
+        else
+        {
+            temp += str[i];
+        }
+    }
+
+    return temp;
+}
+
 std::vector<Expression> reToPostFix(std::string re)
 {
     std::vector<Expression> postfix;
     std::vector<Expression> stack;
+    re = normalize(re);
     Expression prev;
     for (auto i = re.begin(); i != re.end(); ++i)
     {
-    
+
         if (utils::isOperand(*i) || utils::isEscapeChar(*i) || *i == '[')
         {
             if (prev.type == "OPERAND" || prev.value == "*" || prev.value == ")")
@@ -51,11 +106,11 @@ std::vector<Expression> reToPostFix(std::string re)
             if (*i == '[')
             {
                 std::string value = "";
-                *i++;
+                i++;
                 while (*i != ']' && i != re.end())
                 {
                     value += *i;
-                    *i++;
+                    i++;
                 }
                 if (i == re.end())
                     throw "Invalid RE";

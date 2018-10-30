@@ -18,6 +18,7 @@ struct Tokenizer
         isKeyWord = lex::isKeyWord;
         isBracket = lex::isBracket;
         numberMatch = lex::numberMatch;
+        operatorMatch = lex::operatorMatch;
         multiLineCommentMatch = lex::getMultiLine();
         isStringOrChar = lex::isStringOrChar;
     }
@@ -33,6 +34,7 @@ struct Tokenizer
 
     DFA numberMatch;
     DFA multiLineCommentMatch;
+    DFA operatorMatch;
 };
 } // namespace lex
 

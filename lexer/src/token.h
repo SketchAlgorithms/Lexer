@@ -30,17 +30,19 @@ struct Token
         this->type = TokenType::EOT;
         this->extra = "";
     }
-    explicit Token(TokenType type, std::string value = "", long line = 0, long column = 0, std::string extra = "")
+    explicit Token(TokenType type, std::string value = "", long line = 0, long column = 0, std::string subType = "", std::string extra = "")
     {
         this->column = column;
         this->value = value;
         this->line = line;
         this->type = type;
         this->extra = extra;
+        this->subType = subType;
     }
     TokenType type;
     std::string value;
     std::string extra;
+    std::string subType;
     long line;
     long column;
 };

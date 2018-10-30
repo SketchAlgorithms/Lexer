@@ -11,21 +11,8 @@
 #include <sstream>
 int main(int argc, char const *argv[])
 {
-    std::string arr[11] =
-        {
-            "KEYWORD",
-            "IDENTIFIER",
-            "BOOLEAN",
-            "NUMBER",
-            "STRING",
-            "REGEXP",
-            "OPERATOR",
-            "DELIMETER",
-            "COMMENT",
-            "UNDEF",
-            "EOT"};
 
-    std::ifstream file("test.cpp");
+    std::ifstream file("test.js");
     std::ofstream logFile("test.log");
     std::string input;
     if (!file)
@@ -39,12 +26,7 @@ int main(int argc, char const *argv[])
     auto next = lexer.nextToken();
     while (next.type != lex::TokenType::EOT)
     {
-        logFile << "Token: " << arr[next.type] << std::endl;
-        logFile << "Value: " << next.value << std::endl;
-        logFile << "Column: " << next.column << std::endl;
-        logFile << "Line: " << next.line << std::endl;
-        logFile << "Extra: " << next.extra << std::endl;
-        logFile << "=====================================\n\n";
+        lex::tokenPrinter(next,logFile);
         next = lexer.nextToken();
     }
 

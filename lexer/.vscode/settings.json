@@ -51,6 +51,8 @@
         "string": "cpp",
         "deque": "cpp",
         "iterator": "cpp",
-        "array": "cpp"
+        "array": "cpp",
+        "fstream": "cpp",
+        "sstream": "cpp"
     }
 }

@@ -27,6 +27,7 @@ public:
     this->column = 1;
     this->input = input;
     this->tokenizer = tokenizer;
+    this->stringOpen = '\0';
   }
   /**
    * summary - returns next token in sequence pointed by line  number and column number
@@ -45,7 +46,11 @@ public:
     }
     // Reading Character
     char character = input.at(position);
-    if (tokenizer.isAlphabet(character))
+    if (stringOpen != '\0' || tokenizer.isStringOrChar(character))
+    {
+      return processStringChar();
+    }
+    else if (tokenizer.isAlphabet(character))
     {
       return processAlphabet();
     }
@@ -57,10 +62,15 @@ public:
     {
       return processBracket();
     }
+    else if (tokenizer.isOperator(character))
+    {
+      return processOperator();
+    }
     else if (tokenizer.isDelimeter(character))
     {
       return processDelimeter();
     }
+
     position++;
     std::string s;
     s.push_back(character);
@@ -103,7 +113,87 @@ private:
       stack.push_back(pair);
     }
     tokenCount[DELIMETER]++;
-    return Token(DELIMETER, bracket, line, column++, std::to_string(pair));
+    return Token(DELIMETER, bracket, line, column++, "BRACKET", std::to_string(pair));
+  }
+
+  /**
+   * summary - returns Operators token
+   * @method processOperator
+   * @return {Token}
+  */
+  Token processOperator()
+  {
+    std::string op = "";
+    auto lookAhead = this->position;
+    auto column = this->column;
+    auto position = this->position;
+    auto dfa = tokenizer.operatorMatch;
+    auto currentState = dfa.getStart();
+    do
+    {
+      if (lookAhead >= input.length())
+        break;
+      auto character = input.at(lookAhead);
+      currentState = dfa.next(character);
+
+      if (currentState->isFinal)
+      {
+        position = lookAhead;
+      }
+      op += character;
+      ++lookAhead;
+
+    } while (!currentState->isRejected);
+    std::string acceptedNumber = op.substr(0, position - this->position + 1);
+    this->position = position + 1;
+    this->column += acceptedNumber.length();
+    tokenCount[OPERATOR]++;
+    return Token(OPERATOR, acceptedNumber, line, column);
+  }
+
+  /**
+   * summary - returns String Token 
+   * @method processStringChar
+   * @return {Token}
+  */
+  Token processStringChar()
+  {
+    std::string literal = "";
+    auto character = input.at(position);
+
+    if (tokenizer.isStringOrChar(character))
+    {
+      position++;
+      if (stringOpen == '\0')
+      {
+        stringOpen = character;
+        literal.push_back(character);
+        return Token(DELIMETER, literal, line, column++, character == '"' ? "STRING" : "CHAR", "OPEN");
+      }
+      stringOpen = '\0';
+      literal.push_back(character);
+      return Token(DELIMETER, literal, line, column++, character == '"' ? "STRING" : "CHAR", "CLOSE");
+    }
+    auto lookAhead = this->position;
+    auto column = this->column;
+
+    do
+    {
+
+      if (character == '\n' || ++lookAhead >= input.length())
+      {
+        position = lookAhead;
+        stringOpen = '\0';
+        this->column += literal.length();
+        return Token(UNDEF, literal, line, column + 1);
+      }
+      literal += character;
+
+      character = input.at(lookAhead);
+    } while (character != stringOpen);
+    position = lookAhead;
+    this->column += literal.length();
+    return Token(STRING, literal, line, column);
   }
 
   /**
@@ -218,6 +308,7 @@ private:
   std::vector<long> tokenCount;
   lex::Token prevToken;
   Tokenizer tokenizer;
+  char stringOpen;
 };
 } // namespace lex
 
