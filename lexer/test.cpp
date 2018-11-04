@@ -67,13 +67,16 @@ void Test()
     },
                     "RUNNING TESTS");
 }
+
 int main(int argc, char const *argv[])
 {
 
     Test();
+    auto dfa = lex::regexp(
+        R"(a*)");
 
-    auto a = lex::regexp(R"(.?|(.?ba))");
-    std::cout << a.etf("ba");
-    std::cout << a.etf(".");
+    std::cout << dfa.etf("aaaaaaaaaaaa");
+    std::cout << dfa.etf("");
+    std::cout << dfa.etf("1a1");
     return 0;
 }

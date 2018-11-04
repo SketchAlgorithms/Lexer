@@ -62,7 +62,7 @@ DFA nodesToSate(std::set<int> startSet, std::vector<std::pair<std::set<int>, Exp
         stateTransition.push_back({});
         // Making a set so that un necessary comparisions are not mafe
         std::set<int> foundTransition = {};
-        // Iterating the nodes in set 
+        // Iterating the nodes in set
         for (auto it = mark.begin(); it != mark.end(); ++it)
         {
             // If the node contains final node
@@ -74,18 +74,28 @@ DFA nodesToSate(std::set<int> startSet, std::vector<std::pair<std::set<int>, Exp
             //initializing next state
             std::set<int> transState = nodes[*it].first;
             // Transition Alphabet
-            std::string alphabet = nodes[*it].second.value;
+            auto alphabet = nodes[*it].second;
             // Checking if others states have transition
             for (auto jt = std::next(it); jt != mark.end(); ++jt)
             {
+                auto compareAlphabet = nodes[*jt].second;
                 // Variable checking loop enter count
                 count++;
+
                 // if the node has same alphabet
-                if (nodes[*jt].second.value == alphabet)
+                if (alphabet.sub == "ALL" || compareAlphabet.sub == "ALL")
                 {
                     // merge the set
                     transState.insert(nodes[*jt].first.begin(), nodes[*jt].first.end());
                     foundTransition.insert(*jt);
+                    alphabet = Expression("", "", "ALL");
+                }
+                else if (utils::rangeIntersection(compareAlphabet.value, alphabet.value))
+                {
+                    // merge the set
+                    transState.insert(nodes[*jt].first.begin(), nodes[*jt].first.end());
+                    foundTransition.insert(*jt);
+                    alphabet = Expression("", compareAlphabet.value + alphabet.value);
                 }
             }
             // If the set is not null
@@ -129,9 +139,9 @@ DFA nodesToSate(std::set<int> startSet, std::vector<std::pair<std::set<int>, Exp
     return dfa;
 }
 // Positive or Kleene Closure
-Node closure(Node op1, bool positive = false)
+Node closure(Node op1, bool nullable = true)
 {
-    auto node = Node(positive);
+    auto node = Node(nullable);
     node.firstPos = op1.firstPos;
     node.lastPos = op1.lastPos;
     // delete op1;
@@ -186,7 +196,7 @@ DFA directMethod(std::vector<Expression> postfix)
         {
             auto op = stack.back();
             stack.pop_back();
-            (exp.value == "+") ? stack.push_back(closure(op, true)) : stack.push_back(closure(op));
+            (exp.value == "+") ? stack.push_back(closure(op, false)) : stack.push_back(closure(op));
 
             // Follow Pos
             for (auto pos : op.lastPos)

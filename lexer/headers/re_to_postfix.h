@@ -83,7 +83,7 @@ std::vector<Expression> reToPostFix(std::string re, int print = 0)
 {
     std::vector<Expression> postfix;
     std::vector<Expression> stack;
-    re = normalize(re);
+    // re = normalize(re);
     if (print)
         std::cout << re << std::endl;
     Expression prev;
@@ -105,7 +105,7 @@ std::vector<Expression> reToPostFix(std::string re, int print = 0)
             }
             if (*i == '.')
             {
-                prev = Expression("OPERAND", *i, "SPECIAL");
+                prev = Expression("OPERAND", *i, "ALL");
                 postfix.push_back(prev);
             }
             else if (*i == '[')
