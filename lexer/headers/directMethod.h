@@ -45,7 +45,7 @@ DFA nodesToSate(std::set<int> startSet, std::vector<std::pair<std::set<int>, Exp
     // Keeping track of nodes comming out as marked
     int nodeCount = 0;
     // Keeps track of transition
-    std::vector<std::vector<std::pair<std::string, int>>> stateTransition;
+    std::vector<std::vector<std::pair<Expression, int>>> stateTransition;
 
     // Looping While all the found sets are not marked
     while (!remaining.empty())
@@ -62,7 +62,7 @@ DFA nodesToSate(std::set<int> startSet, std::vector<std::pair<std::set<int>, Exp
         stateTransition.push_back({});
         // Making a set so that un necessary comparisions are not mafe
         std::set<int> foundTransition = {};
-        // Iterating the nodes in set
+        // Iterating the nodes in set 
         for (auto it = mark.begin(); it != mark.end(); ++it)
         {
             // If the node contains final node
@@ -104,7 +104,7 @@ DFA nodesToSate(std::set<int> startSet, std::vector<std::pair<std::set<int>, Exp
                 else
                     index = (*iter).second;
 
-                stateTransition.at(markIndex).push_back(std::make_pair(alphabet, index));
+                stateTransition.at(markIndex).push_back(std::make_pair(nodes[*it].second, index));
             }
         }
         // Pushing if Final

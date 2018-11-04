@@ -77,19 +77,26 @@ std::string nodeSetToString(std::set<int> set)
     });
 }
 
-std::function<int(char)> getTransition(std::vector<std::pair<std::string, int>> trans)
+std::function<int(char)> getTransition(std::vector<std::pair<Expression, int>> trans)
 {
 
     return [trans](char alpha) {
         for (auto it = trans.begin(); it != trans.end(); ++it)
         {
-            const auto str = (*it).first;
+            auto trans = (*it);
+            auto exp = trans.first;
+            const auto state = trans.second;
+            const auto str = exp.value;
+
+            if (exp.sub == "SPECIAL")
+            {
+                return state;
+            }
             const int strLength = str.length();
-            const auto state = (*it).second;
             if (strLength == 1)
             {
                 if (str.at(0) == alpha)
-                    return (*it).second;
+                    return state;
             }
             else
             {

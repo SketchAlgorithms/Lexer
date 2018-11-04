@@ -103,7 +103,12 @@ std::vector<Expression> reToPostFix(std::string re, int print = 0)
 
                 stack.push_back(Expression("OPERATOR", c));
             }
-            if (*i == '[')
+            if (*i == '.')
+            {
+                prev = Expression("OPERAND", *i, "SPECIAL");
+                postfix.push_back(prev);
+            }
+            else if (*i == '[')
             {
                 std::string value = "";
                 i++;

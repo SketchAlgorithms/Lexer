@@ -45,22 +45,35 @@ void testID()
                 ? "Accepted"
                 : "Rejected");
 }
+
+void testMultiLineComment()
+{
+    auto dfa = lex::regexp(R"(/\*.*\*/)");
+    std::cout
+        << "TEST: "
+        << ((
+
+               dfa.etf("/**/") &&
+                       dfa.etf("/*123123*/")
+                   ? "Accepted"
+                   : "Rejected"));
+}
 void Test()
 {
     utils::withTime([]() {
         utils::withTime(testNumbers, "NUMBER");
-        utils::withTime(testID, "IDENTIFIER"); }, "RUNNING TESTS");
+        utils::withTime(testID, "IDENTIFIER");
+        utils::withTime(testMultiLineComment, "MULTILINE COMMENT");
+    },
+                    "RUNNING TESTS");
 }
 int main(int argc, char const *argv[])
 {
 
     Test();
 
-    auto a = lex::regexp(R"([0-9]+)");
-    std::cout << a.etf("11");
-    std::cout << a.etf("1000000000000");
-    std::cout << a.etf("2");
-    std::cout << a.etf("+");
-    std::cout << a.etf("1-");
+    auto a = lex::regexp(R"(.?|(.?ba))");
+    std::cout << a.etf("ba");
+    std::cout << a.etf(".");
     return 0;
 }
