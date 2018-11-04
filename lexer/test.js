@@ -1,7 +1,7 @@
 import { curry, Task } from "fp-small";
 
 /**
- * Sets Data
+ * Sets Data "Inmaspd"
  * setData :: Ref -> id -> (data,merge) -> Task Ref
  * @param {docRef} docRef - DocRef to be set
  * @param {object} data - Data to be set

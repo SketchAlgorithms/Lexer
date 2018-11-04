@@ -4,41 +4,22 @@
 #include <iostream>
 #include <vector>
 #include "./utils.h"
-struct Expression
-{
-    Expression()
-    {
-        this->type = "";
-        this->value = "";
-    }
-    explicit Expression(std::string type,
-                        std::string value)
-    {
-        this->type = type;
-        this->value = value;
-    }
-    explicit Expression(std::string type, char c)
-    {
-        this->type = type;
-        this->value.push_back(c);
-    }
-    std::string type;
-    std::string value;
-};
+#include "expression.h"
 
 std::string normalize(std::string str)
 {
-    std::string temp = "";
     const int strLength = str.length();
+    std::string normalizedString = "";
     for (int i = 0; i < strLength; ++i)
     {
+        std::string temp;
         if (str[i] == '[')
         {
             ++i;
             std::string value = "(";
             while (str[i] != ']' && i < strLength)
             {
-                if (i + 2 < strLength && str[i + 1] == '-')
+                if (i + 2 < strLength && str[i + 1] == '-' && str[i + 2] != ']')
                 {
                     if (str[i] > str[i + 2])
                         throw "Invalid Regular Expression Range";
@@ -59,7 +40,7 @@ std::string normalize(std::string str)
                 }
                 else
                 {
-                    
+
                     value.push_back('\\');
                     value.push_back(str[i]);
                     if (i + 1 < strLength && str[i + 1] != ']')
@@ -71,27 +52,47 @@ std::string normalize(std::string str)
                 throw "Invalid RE";
             temp += value + ")";
         }
+
         else
         {
             temp += str[i];
         }
+
+        normalizedString += temp;
     }
 
-    return temp;
+    return normalizedString;
 }
 
-std::vector<Expression> reToPostFix(std::string re)
+void prefixPrinter(std::vector<Expression> pre)
+{
+    std::cout << std::endl
+              << "============" << std::endl;
+    for (auto v : pre)
+    {
+        if (v.sub == "NULL")
+            std::cout << " EPS ";
+        else
+            std::cout << " " << v.value << " ";
+    }
+    std::cout << std::endl
+              << "============" << std::endl;
+}
+
+std::vector<Expression> reToPostFix(std::string re, int print = 0)
 {
     std::vector<Expression> postfix;
     std::vector<Expression> stack;
     re = normalize(re);
+    if (print)
+        std::cout << re << std::endl;
     Expression prev;
     for (auto i = re.begin(); i != re.end(); ++i)
     {
 
         if (utils::isOperand(*i) || utils::isEscapeChar(*i) || *i == '[')
         {
-            if (prev.type == "OPERAND" || prev.value == "*" || prev.value == ")")
+            if (utils::shouldConcat(prev))
             {
                 char c = '.';
                 while (!stack.empty() && utils::precedence(c) <= utils::precedence(stack.back().value.at(0)))
@@ -102,7 +103,6 @@ std::vector<Expression> reToPostFix(std::string re)
 
                 stack.push_back(Expression("OPERATOR", c));
             }
-
             if (*i == '[')
             {
                 std::string value = "";
@@ -139,7 +139,7 @@ std::vector<Expression> reToPostFix(std::string re)
         }
         else if (*i == '(')
         {
-            if (prev.type == "OPERAND" || prev.value == "*" || prev.value == ")")
+            if (utils::shouldConcat(prev))
             {
                 char c = '.';
                 while (!stack.empty() && utils::precedence(c) <= utils::precedence(stack.back().value.at(0)))
@@ -171,7 +171,9 @@ std::vector<Expression> reToPostFix(std::string re)
         postfix.push_back(stack.back());
         stack.pop_back();
     }
-    int a;
+    if (print)
+        prefixPrinter(postfix);
+
     return postfix;
 }
 #endif // RE_TO_POSTFIX_H

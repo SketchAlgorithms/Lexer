@@ -1,0 +1,1 @@
+mingw32-g++ -g -std=c++1z test.cpp

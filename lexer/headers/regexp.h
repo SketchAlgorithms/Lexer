@@ -7,9 +7,9 @@
 #include "directMethod.h"
 namespace lex
 {
-DFA regexp(std::string regexp)
+DFA regexp(std::string regexp, int print = 0)
 {
-    return directMethod(reToPostFix("(" + regexp + ")$"));
+    return directMethod(reToPostFix("(" + regexp + ")$", print));
 }
 } // namespace lex
 

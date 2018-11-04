@@ -181,6 +181,7 @@ private:
     if (tokenizer.isStringOrChar(character))
     {
       position++;
+      literal.push_back('\\');
       if (stringOpen == '\0')
       {
         stringOpen = character;
@@ -336,6 +337,11 @@ private:
       {
         line++;
         column = 1;
+        comment += "\\n";
+      }
+      else if (character == '"')
+      {
+        comment += "\\\"";
       }
       else
         comment += character;
@@ -420,10 +426,11 @@ public:
     return data;
   }
 
-  void setInput(std::string s){
-    input=s;
-
+  void setInput(std::string s)
+  {
+    input = s;
   }
+
 private:
   int position;
   int line;

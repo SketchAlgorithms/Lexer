@@ -24,13 +24,13 @@
     <script src="index.js"></script>
     <script>
         function highlightCode(str) {
-            let ptr = Wasm.allocateUTF8(str);
+            let ptr = allocateUTF8(str);
             // Call the method passing the pointer
-            let retPtr = Wasm._highlight(ptr);
+            let retPtr = _highlight(ptr);
             // Retransform back your pointer to string using 'Glue' method
-            let resValue = Wasm.Pointer_stringify(retPtr);
+            let resValue = Pointer_stringify(retPtr);
             // Free the memory allocated by 'allocate' 
-            Wasm._free(ptr);
+            _free(ptr);
             console.log(resValue)
             // document.getElementById('code').innerHTML = resValue;
         }

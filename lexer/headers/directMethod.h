@@ -128,9 +128,10 @@ DFA nodesToSate(std::set<int> startSet, std::vector<std::pair<std::set<int>, Exp
     // std::cout << "DFA STATES: " << dStates.size() << std::endl;
     return dfa;
 }
-Node kleeneClosure(Node op1)
+// Positive or Kleene Closure
+Node closure(Node op1, bool positive = false)
 {
-    auto node = Node();
+    auto node = Node(positive);
     node.firstPos = op1.firstPos;
     node.lastPos = op1.lastPos;
     // delete op1;
@@ -168,7 +169,7 @@ DFA directMethod(std::vector<Expression> postfix)
         auto exp = (*i);
         if (exp.type == "OPERAND")
         {
-            if (exp.value == "#")
+            if (exp.sub == "NULL")
             {
                 stack.push_back(Node());
             }
@@ -181,12 +182,11 @@ DFA directMethod(std::vector<Expression> postfix)
                 stack.push_back(node);
             }
         }
-        else if (exp.value == "*")
+        else if (exp.value == "*" || exp.value == "+")
         {
             auto op = stack.back();
             stack.pop_back();
-
-            stack.push_back(kleeneClosure(op));
+            (exp.value == "+") ? stack.push_back(closure(op, true)) : stack.push_back(closure(op));
 
             // Follow Pos
             for (auto pos : op.lastPos)
@@ -207,8 +207,10 @@ DFA directMethod(std::vector<Expression> postfix)
             }
             stack.push_back(concat(op2, op1));
         }
-        else if (exp.value == "|")
+        else if (exp.value == "|" || exp.value == "?")
         {
+            if (exp.value == "?")
+                stack.push_back(Node());
             auto op1 = stack.back();
             stack.pop_back();
             auto op2 = stack.back();
