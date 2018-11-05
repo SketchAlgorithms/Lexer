@@ -90,7 +90,7 @@ std::vector<Expression> reToPostFix(std::string re, int print = 0)
     for (auto i = re.begin(); i != re.end(); ++i)
     {
 
-        if (utils::isOperand(*i) || utils::isEscapeChar(*i) || *i == '[')
+        if (utils::isOperand(*i) || *i == '\\' || *i == '[')
         {
             if (utils::shouldConcat(prev))
             {
@@ -122,12 +122,14 @@ std::vector<Expression> reToPostFix(std::string re, int print = 0)
                 prev = Expression("OPERAND", value);
                 postfix.push_back(prev);
             }
+            else if (*i == '\\')
+            {
+                ++i;
+                prev = Expression("OPERAND", utils::getEscapeChar(*i));
+                postfix.push_back(prev);
+            }
             else
             {
-                if (utils::isEscapeChar(*i))
-                {
-                    ++i;
-                }
                 prev = Expression("OPERAND", *i);
                 postfix.push_back(prev);
             }

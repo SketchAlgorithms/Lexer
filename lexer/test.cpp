@@ -11,7 +11,8 @@ void testNumbers()
 {
 
     // DFA numberMatch = lex::regexp(R"((([1-9][0-9]*)|0)((\.[0-9][0-9]*)|#)(([Ee]([+-]|#)[0-9][0-9]*)|#))");
-    DFA numberMatch = lex::regexp(R"((([1-9][0-9]*)|0)(\.[0-9]+)?([Ee][+-]?[0-9]+)?)");
+    // DFA numberMatch = lex::regexp(R"((([1-9][0-9]*)|0)(\.[0-9]+)?([Ee][+-]?[0-9]+)?)");
+    DFA numberMatch = lex::regexp(R"((([1-9]\d*)|0)(\.\d+)?([Ee][+-]?\d+)?)");
 
     std::cout << "TEST: "
               << ((numberMatch.etf("1000") &&
@@ -29,7 +30,7 @@ void testNumbers()
 }
 void testID()
 {
-    auto id = lex::regexp(R"([a-zA-Z_][a-zA-Z_0-9]+)");
+    auto id = lex::regexp(R"([a-zA-Z_]\w+)");
     std::cout
         << "TEST: "
         << ((
@@ -73,10 +74,11 @@ int main(int argc, char const *argv[])
 
     Test();
     auto dfa = lex::regexp(
-        R"(a*)");
-
-    std::cout << dfa.etf("aaaaaaaaaaaa");
-    std::cout << dfa.etf("");
-    std::cout << dfa.etf("1a1");
+        R"(\t)");
+    
+    std::cout << dfa.etf("                                         ");
+    std::cout << dfa.etf("    ");
+    std::cout << dfa.etf("<>");
+    std::cout << dfa.etf("a");
     return 0;
 }

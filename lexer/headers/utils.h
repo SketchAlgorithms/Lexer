@@ -13,10 +13,39 @@
 namespace utils
 {
 
+std::string getEscapeChar(char c)
+{
+    switch (c)
+    {
+    case 'n':
+        return "\n";
+    case 't':
+        return "\t";
+    case 'r':
+        return "\r";
+    case 'v':
+        return "\v";
+    case 'f':
+        return "\f";
+    case '0':
+        return "\n";
+    case 's':
+        return "\f\n\r\t\v ";
+    case 'd':
+        return "0-9";
+    case 'w':
+        return "A-Za-z0-9_";
+    default:
+        std::string s;
+        s.push_back(c);
+        return s;
+    }
+}
 bool isEscapeChar(char x)
 {
     return x == '\\';
 }
+
 bool shouldConcat(Expression prev)
 {
     return prev.type == "OPERAND" || prev.value == "*" || prev.value == "+" || prev.value == "?" || prev.value == ")";
