@@ -13,7 +13,7 @@ int main(int argc, char const *argv[])
 {
 
     std::ifstream file("test.js");
-    std::ofstream logFile("test.json");
+    std::ofstream logFile("test.log");
     std::string input;
     if (!file)
         throw "Can't Open File";

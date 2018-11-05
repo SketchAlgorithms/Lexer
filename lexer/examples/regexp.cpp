@@ -71,19 +71,14 @@ void Test()
 
 int main(int argc, char const *argv[])
 {
-    // Test();
-    // DFA dfa = lex::regexp(R"([-+*/%=&^|><!]=?|[?:~]|>>=|<<=|&&|\|\||\+\+|--)",1);
-    DFA dfa = lex::regexp(R"([-+*/%=&^|><!]=?|[?:~]|>>=|<<=|&&|\|\||\+\+|--)", 1);
 
-    std::cout << dfa.etf("+");
-    std::cout << dfa.etf("-");
-    std::cout << dfa.etf("/");
-    // std::cout << dfa.etf("%");
-    std::cout << dfa.etf("&");
-    std::cout << dfa.etf("^");
-    std::cout << dfa.etf("+=");
-    std::cout << dfa.etf("-=");
-    std::cout << dfa.etf("++");
-    std::cout << dfa.etf("--");
+    Test();
+    auto dfa = lex::regexp(
+        R"(\t)");
+    
+    std::cout << dfa.etf("                                         ");
+    std::cout << dfa.etf("    ");
+    std::cout << dfa.etf("<>");
+    std::cout << dfa.etf("a");
     return 0;
 }

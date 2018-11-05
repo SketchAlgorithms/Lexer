@@ -69,43 +69,14 @@ bool isKeyWord(std::string keyWord)
     return keyWords.find(keyWord) != keyWords.end();
 }
 
-DFA numberMatch = lex::regexp(R"((([1-9][0-9]*)|0)((\.[0-9][0-9]*)|#)(([Ee]([+-]|#)[0-9][0-9]*)|#))");
+DFA numberMatch = lex::regexp(R"((([1-9]\d*)|0)(\.\d+)?([Ee][+-]?\d+)?)");
 DFA operatorMatch = lex::regexp(R"(([-+*/%=&^|><!](=|#))|([?:~])|(>>=)|(<<=)|(&&)|(\|\|)|(++)|(--))");
 // DFA operatorMatch = lex::regexp(R"([-+*/%=&^|><!])");
 DFA getMultiLine()
 {
-    auto q0 = std::make_shared<FAState>();
-    auto q1 = std::make_shared<FAState>();
-    auto q2 = std::make_shared<FAState>();
-    auto q3 = std::make_shared<FAState>();
-    auto q4 = std::make_shared<FAState>();
-    DFA a({q0, q1, q2, q3, q4}, q0);
-    q0->transition = [](char a) {
-        if (a == '/')
-            return 1;
-        return -1;
-    };
-    q1->transition = [](char a) {
-        if (a == '*')
-            return 2;
-        return -1;
-    };
-    q2->transition = [](char a) {
-        if (a == '*')
-            return 3;
-        return 2;
-    };
-    q3->transition = [](char a) {
-        if (a == '/')
-            return 4;
-        if (a == '*')
-            return 3;
-        return 2;
-    };
-    q4->isFinal = true;
-
-    return a;
+    return lex::regexp(R"(/\*.*\*/)");
 }
+
 template <typename T>
 void tokenPrinter(Token token, T &logFile)
 {

@@ -112,10 +112,30 @@ std::vector<Expression> reToPostFix(std::string re, int print = 0)
             {
                 std::string value = "";
                 i++;
+                if (*i == '-')
+                {
+                    value += "\\-";
+                    i++;
+                }
                 while (*i != ']' && i != re.end())
                 {
-                    value += *i;
-                    i++;
+                    if (*i == '-')
+                    {
+                        i++;
+                        if (*i == ']')
+                        {
+                            value += "\\-";
+                        }
+                        else
+                        {
+                            value += "-" + *i;
+                        }
+                    }
+                    else
+                    {
+                        value += *i;
+                        i++;
+                    }
                 }
                 if (i == re.end())
                     throw "Invalid RE";

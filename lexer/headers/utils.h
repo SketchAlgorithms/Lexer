@@ -133,6 +133,12 @@ std::function<int(char)> getTransition(std::vector<std::pair<Expression, int>> t
                 std::vector<std::array<int, 2>> ranges;
                 for (int i = 0; i < strLength; ++i)
                 {
+                    if (str[i] == '\\')
+                    {
+                        ++i;
+                        group += str[i];
+                        continue;
+                    }
                     if (i + 2 < strLength && str[i + 1] == '-')
                     {
                         if (str[i] > str[i + 2])
@@ -167,6 +173,13 @@ std::pair<std::set<char>, std::vector<std::array<int, 2>>> getRanges(std::string
     std::vector<std::array<int, 2>> ranges;
     for (int i = 0; i < strLength; ++i)
     {
+        if (str[i] == '\\')
+        {
+            ++i;
+            group.insert(str[i]);
+            continue;
+        }
+
         group.insert(str[i]);
         if (i + 2 < strLength && str[i + 1] == '-' && str[i + 2] != ']')
         {
