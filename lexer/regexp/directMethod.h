@@ -9,7 +9,7 @@
 #include <iterator>
 #include <deque>
 #include <unordered_map>
-#include "dfa.h"
+#include "nfa.h"
 #include "./re_to_postfix.h"
 #include <utility>
 struct Node
@@ -25,7 +25,7 @@ struct Node
     }
 };
 
-DFA nodesToSate(std::set<int> startSet, std::vector<std::pair<std::set<int>, Expression>> nodes)
+NFA nodesToSate(std::set<int> startSet, std::vector<std::pair<std::set<int>, Expression>> nodes)
 {
     // TO Determine Final Node
     const int finalNode = nodes.size() - 1;
@@ -74,9 +74,7 @@ DFA nodesToSate(std::set<int> startSet, std::vector<std::pair<std::set<int>, Exp
             std::set<int> transState = nodes[*it].first;
             // Transition Alphabet
             auto alphabet = nodes[*it].second;
-            // // if already marked continue
-            // if (foundTransition.find(*it) != foundTransition.end())
-            //     continue;
+
             // if already marked continue
             if (foundAlphabet.find(alphabet.value) != foundAlphabet.end())
                 continue;
@@ -90,16 +88,17 @@ DFA nodesToSate(std::set<int> startSet, std::vector<std::pair<std::set<int>, Exp
                 if (foundAlphabet.find(compareAlphabet.value) != foundAlphabet.end())
                     continue;
 
-
-                // if the node has same alphabet
-                if (alphabet.sub == "ALL" || compareAlphabet.sub == "ALL")
-                {
+                if (compareAlphabet.value == alphabet.value)
                     transState.insert(nodes[*jt].first.begin(), nodes[*jt].first.end());
-                }
-                else if (utils::rangeIntersection(alphabet.value, compareAlphabet.value))
-                {
-                    transState.insert(nodes[*jt].first.begin(), nodes[*jt].first.end());
-                }
+                // // if the node has same alphabet
+                // if (alphabet.sub == "ALL" || compareAlphabet.sub == "ALL")
+                // {
+                //     transState.insert(nodes[*jt].first.begin(), nodes[*jt].first.end());
+                // }
+                // else if (utils::rangeIntersection(alphabet.value, compareAlphabet.value))
+                // {
+                //     transState.insert(nodes[*jt].first.begin(), nodes[*jt].first.end());
+                // }
             }
             foundAlphabet.insert(alphabet.value);
             // If the set is not null
@@ -128,19 +127,19 @@ DFA nodesToSate(std::set<int> startSet, std::vector<std::pair<std::set<int>, Exp
     // std::cout << "Loop Enter: " << count << std::endl;
     // std::cout << "Nodes Count " << nodes.size() << std::endl;
     std::vector<std::shared_ptr<FAState>> dStates;
-    const int dfaLength = stateTransition.size();
+    const int nfaLength = stateTransition.size();
 
-    for (int i = 0; i < dfaLength; ++i)
+    for (int i = 0; i < nfaLength; ++i)
         dStates.push_back(std::make_shared<FAState>());
-    DFA dfa(dStates, dStates[0]);
+    NFA nfa(dStates);
 
-    for (int i = 0; i < dfaLength; ++i)
+    for (int i = 0; i < nfaLength; ++i)
     {
         dStates[i]->isFinal = finalState.at(i);
         dStates[i]->transition = utils::getTransition(stateTransition[i]);
     }
-    // std::cout << "DFA STATES: " << dStates.size() << std::endl;
-    return dfa;
+    // std::cout << "NFA STATES: " << dStates.size() << std::endl;
+    return nfa;
 }
 // Positive or Kleene Closure
 Node closure(Node op1, bool nullable = true)
@@ -173,7 +172,7 @@ Node concat(Node op1, Node op2)
     return node;
 }
 
-DFA directMethod(std::vector<Expression> postfix)
+NFA directMethod(std::vector<Expression> postfix)
 {
     std::vector<std::pair<std::set<int>, Expression>> nodes;
     std::deque<Node> stack;

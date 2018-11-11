@@ -106,26 +106,31 @@ std::string nodeSetToString(std::set<int> set)
     });
 }
 
-std::function<int(char)> getTransition(std::vector<std::pair<Expression, int>> trans)
+
+std::function<std::set<int>(char)> getTransition(std::vector<std::pair<Expression, int>> trans)
 {
 
     return [trans](char alpha) {
-        for (auto it = trans.begin(); it != trans.end(); ++it)
-        {
-            auto trans = (*it);
-            auto exp = trans.first;
-            const auto state = trans.second;
-            const auto str = exp.value;
+        std::set<int> states = {};
 
+        for (auto pair : trans)
+        {
+            auto exp = pair.first;
+            auto state = pair.second;
             if (exp.sub == "ALL")
             {
-                return state;
+                states.insert(state);
+                continue;
             }
+            const auto str = exp.value;
             const int strLength = str.length();
             if (strLength == 1)
             {
                 if (str.at(0) == alpha)
-                    return state;
+                {
+                    states.insert(state);
+                }
+                continue;
             }
             else
             {
@@ -151,103 +156,25 @@ std::function<int(char)> getTransition(std::vector<std::pair<Expression, int>> t
                     }
                 }
                 if (group.find(alpha) != group.end())
-                    return state;
+                {
+                    states.insert(state);
+                    continue;
+                }
                 for (auto range : ranges)
                 {
                     if (alpha >= range[0] && alpha <= range[1])
-                        return state;
+                    {
+                        states.insert(state);
+                        break;
+                    }
                 }
             }
         }
-        return -1;
+
+        return states;
     };
 }
 
-std::pair<std::set<char>, std::vector<std::array<int, 2>>> getRanges(std::string str)
-{
-    const int strLength = str.length();
-
-    std::set<char> group;
-    std::vector<std::array<int, 2>> ranges;
-    for (int i = 0; i < strLength; ++i)
-    {
-        if (str[i] == '\\')
-        {
-            ++i;
-            group.insert(str[i]);
-            continue;
-        }
-
-        group.insert(str[i]);
-        if (i + 2 < strLength && str[i + 1] == '-' && str[i + 2] != ']')
-        {
-            if (str[i] > str[i + 2])
-                throw "Invalid Regular Expression Range";
-            ranges.push_back({str[i], str[i + 2]});
-            group.insert(str[i + 2]);
-            i += 2;
-        }
-    }
-    return std::make_pair(group, ranges);
-}
-
-std::function<bool(char)> getRangeCompare(std::pair<std::set<char>, std::vector<std::array<int, 2>>> ranges)
-{
-    return [ranges](char alpha) {
-        if (ranges.first.find(alpha) != ranges.first.end())
-            return true;
-        for (auto range : ranges.second)
-        {
-            if (alpha >= range[0] && alpha <= range[1])
-                return true;
-        }
-        return false;
-    };
-}
-std::function<bool(char)> getComparison(Expression exp)
-{
-    if (exp.sub == "ALL")
-    {
-        return [](char) { return true; };
-    }
-    const auto str = exp.value;
-    const int strLength = str.length();
-    if (strLength == 1)
-    {
-        return [str](char alpha) { return str.at(0) == alpha; };
-    }
-    return getRangeCompare(getRanges(str));
-}
-
-bool rangeIntersection(std::string range1, std::string range2)
-{
-    auto pair1 = getRanges(range1);
-    auto pair2 = getRanges(range2);
-    auto compareChar = getRangeCompare(pair1);
-    auto compareChar2 = getRangeCompare(pair2);
-    for (auto character : pair2.first)
-    {
-        if (compareChar(character))
-            return true;
-    }
-    for (auto character : pair1.first)
-    {
-        if (compareChar2(character))
-            return true;
-    }
-
-    for (auto rn1 : pair1.second)
-    {
-        for (auto rn2 : pair2.second)
-        {
-            if (rn1[0] <= rn2[0] && rn1[1] >= rn2[0] || rn1[0] <= rn2[1] && rn1[1] >= rn2[1] || rn2[0] <= rn1[0] && rn2[1] >= rn1[0] || rn2[0] <= rn1[1] && rn2[1] >= rn1[1]
-
-            )
-                return true;
-        }
-    }
-    return false;
-}
 
 } // namespace utils
 

@@ -1,18 +1,18 @@
 #include <iostream>
-#include "headers/fa_state.h"
-#include "headers/dfa.h"
-#include "headers/re_to_postfix.h"
-#include "headers/directMethod.h"
-#include "headers/regexp.h"
+#include "regexp/fa_state.h"
+#include "regexp/nfa.h"
+#include "regexp/re_to_postfix.h"
+#include "regexp/directMethod.h"
+#include "regexp/regexp.h"
 #include <fstream>
 #include <sstream>
 
 void testNumbers()
 {
 
-    // DFA numberMatch = lex::regexp(R"((([1-9][0-9]*)|0)((\.[0-9][0-9]*)|#)(([Ee]([+-]|#)[0-9][0-9]*)|#))");
-    // DFA numberMatch = lex::regexp(R"((([1-9][0-9]*)|0)(\.[0-9]+)?([Ee][+-]?[0-9]+)?)");
-    DFA numberMatch = lex::regexp(R"((([1-9]\d*)|0)(\.\d+)?([Ee][+-]?\d+)?)");
+    // NFA numberMatch = lex::regexp(R"((([1-9][0-9]*)|0)((\.[0-9][0-9]*)|#)(([Ee]([+-]|#)[0-9][0-9]*)|#))");
+    // NFA numberMatch = lex::regexp(R"((([1-9][0-9]*)|0)(\.[0-9]+)?([Ee][+-]?[0-9]+)?)");
+    NFA numberMatch = lex::regexp(R"((([1-9]\d*)|0)(\.\d+)?([Ee][+-]?\d+)?)");
 
     std::cout << "TEST: "
               << ((numberMatch.etf("1000") &&
@@ -49,14 +49,14 @@ void testID()
 
 void testMultiLineComment()
 {
-    auto dfa = lex::regexp(R"(/\*.*1?\*/)");
+    auto nfa = lex::regexp(R"(/\*.*1?\*/)");
     std::cout
         << "TEST: "
         << ((
 
-                dfa.etf("/**/") &&
-                !dfa.etf("/*/") &&
-                dfa.etf("/*123123*/"))
+                nfa.etf("/**/") &&
+                !nfa.etf("/*/") &&
+                nfa.etf("/*123123*/"))
                 ? "Accepted"
                 : "Rejected");
 }
@@ -64,21 +64,21 @@ void testMultiLineComment()
 void testOperator()
 {
 
-    DFA dfa = lex::regexp(R"([-+*/%=&^|><!]=?|[?:~]|>>=|<<=|&&|\|\||\+\+|--)");
+    NFA nfa = lex::regexp(R"([-+*/%=&^|><!]=?|[?:~]|>>=|<<=|&&|\|\||\+\+|--)");
 
     std::cout
         << "TEST: "
-        << ((dfa.etf("+") &&
-             dfa.etf("-") &&
-             dfa.etf("/") &&
-             dfa.etf("%") &&
-             dfa.etf("&") &&
-             dfa.etf("^") &&
-             dfa.etf("+=") &&
-             dfa.etf("-=") &&
-             dfa.etf("++") &&
-             dfa.etf("--") &&
-             !dfa.etf("a"))
+        << ((nfa.etf("+") &&
+             nfa.etf("-") &&
+             nfa.etf("/") &&
+             nfa.etf("%") &&
+             nfa.etf("&") &&
+             nfa.etf("^") &&
+             nfa.etf("+=") &&
+             nfa.etf("-=") &&
+             nfa.etf("++") &&
+             nfa.etf("--") &&
+             !nfa.etf("a"))
                 ? "Accepted"
                 : "Rejected");
 }
@@ -96,11 +96,11 @@ void Test()
 int main(int argc, char const *argv[])
 {
     Test();
-    DFA dfa = lex::regexp(R"(# +\n)", 1);
-    std::cout << dfa.etf("# 111\n");
-    std::cout << dfa.etf("# 111\n");
-    std::cout << dfa.etf("1n");
-    std::cout << dfa.etf("12");
+    NFA dfa = lex::regexp(R"(#( |\t).*\n)", 1);
+    std::cout << dfa.etf("# \n");
+    std::cout << dfa.etf("# 1\n");
+    std::cout << dfa.etf("# 1n");
+    std::cout << dfa.etf("# 12");
 
     return 0;
 }
