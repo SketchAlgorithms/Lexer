@@ -96,7 +96,7 @@ void Test()
 int main(int argc, char const *argv[])
 {
     Test();
-    NFA dfa = lex::regexp(R"(#( |\t).*\n)", 1);
+    NFA dfa = lex::regexp(R"([^a-z]*[a-z])", 1);
     std::cout << dfa.etf("# \n");
     std::cout << dfa.etf("# 1\n");
     std::cout << dfa.etf("# 1n");

@@ -106,7 +106,6 @@ std::string nodeSetToString(std::set<int> set)
     });
 }
 
-
 std::function<std::set<int>(char)> getTransition(std::vector<std::pair<Expression, int>> trans)
 {
 
@@ -136,8 +135,14 @@ std::function<std::set<int>(char)> getTransition(std::vector<std::pair<Expressio
             {
                 std::set<char> group;
                 std::vector<std::array<int, 2>> ranges;
+                auto negated = false;
                 for (int i = 0; i < strLength; ++i)
                 {
+                    if (str[0] == '^')
+                    {
+                        negated = true;
+                        continue;
+                    }
                     if (str[i] == '\\')
                     {
                         ++i;
@@ -155,17 +160,38 @@ std::function<std::set<int>(char)> getTransition(std::vector<std::pair<Expressio
                         i += 2;
                     }
                 }
-                if (group.find(alpha) != group.end())
+                if (negated)
                 {
-                    states.insert(state);
-                    continue;
+                    auto test = true;
+                    if (group.find(alpha) != group.end())
+                    {
+                        continue;
+                    }
+                    for (auto range : ranges)
+                    {
+                        if (alpha >= range[0] && alpha <= range[1])
+                        {
+                            test = false;
+                            break;
+                        }
+                    }
+                    if (test)
+                        states.insert(state);
                 }
-                for (auto range : ranges)
+                else
                 {
-                    if (alpha >= range[0] && alpha <= range[1])
+                    if (group.find(alpha) != group.end())
                     {
                         states.insert(state);
-                        break;
+                        continue;
+                    }
+                    for (auto range : ranges)
+                    {
+                        if (alpha >= range[0] && alpha <= range[1])
+                        {
+                            states.insert(state);
+                            break;
+                        }
                     }
                 }
             }
@@ -174,7 +200,6 @@ std::function<std::set<int>(char)> getTransition(std::vector<std::pair<Expressio
         return states;
     };
 }
-
 
 } // namespace utils
 

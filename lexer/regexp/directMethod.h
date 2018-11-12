@@ -82,23 +82,12 @@ NFA nodesToSate(std::set<int> startSet, std::vector<std::pair<std::set<int>, Exp
             // Checking if others states have transition
             for (auto jt = mark.begin(); jt != mark.end(); ++jt)
             {
-                if (it == jt)
-                    continue;
                 auto compareAlphabet = nodes[*jt].second;
-                if (foundAlphabet.find(compareAlphabet.value) != foundAlphabet.end())
+                if (it == jt || (foundAlphabet.find(compareAlphabet.value) != foundAlphabet.end()))
                     continue;
 
                 if (compareAlphabet.value == alphabet.value)
                     transState.insert(nodes[*jt].first.begin(), nodes[*jt].first.end());
-                // // if the node has same alphabet
-                // if (alphabet.sub == "ALL" || compareAlphabet.sub == "ALL")
-                // {
-                //     transState.insert(nodes[*jt].first.begin(), nodes[*jt].first.end());
-                // }
-                // else if (utils::rangeIntersection(alphabet.value, compareAlphabet.value))
-                // {
-                //     transState.insert(nodes[*jt].first.begin(), nodes[*jt].first.end());
-                // }
             }
             foundAlphabet.insert(alphabet.value);
             // If the set is not null
