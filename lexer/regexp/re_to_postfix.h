@@ -3,6 +3,7 @@
 #define RE_TO_POSTFIX_H
 #include <iostream>
 #include <vector>
+#include <string>
 #include "./utils.h"
 #include "expression.h"
 
@@ -53,7 +54,7 @@ std::vector<Expression> reToPostFix(std::string re, int print = 0)
             {
                 std::string value = "";
                 i++;
-               
+
                 while (*i != ']' && i != re.end())
                 {
 
@@ -84,7 +85,64 @@ std::vector<Expression> reToPostFix(std::string re, int print = 0)
                 postfix.push_back(stack.back());
                 stack.pop_back();
             }
-            prev = Expression("OPERATOR", *i);
+            if (*i == '{')
+            {
+                prev = Expression("OPERATOR", *i);
+                int lower = 0;
+                int upper = 999999;
+                *i++;
+                std::string temp = "";
+                std::string first = "";
+                std::string second = "";
+
+                while (*i != '}' && i != re.end())
+                {
+                    temp += *i;
+                    ++i;
+                }
+                if (i == re.end())
+                    throw "Error";
+                for (int i = 0; i < temp.length(); i++)
+                {
+                    if (second == "")
+                    {
+                        if (temp[i] != ',')
+                        {
+                            first += temp[i];
+                        }
+                        else
+                        {
+                            i++;
+                            if (i < temp.length())
+                                second += temp[i];
+                            else
+                                second = "NULL";
+                        }
+                    }
+                    else
+                    {
+                        second += temp[i];
+                    }
+                }
+                if (first != "")
+                {
+                    lower = std::stoi(first);
+                }
+                if (second != "" && second != "NULL")
+                {
+                    upper = std::stoi(second);
+                }
+                else if (second != "NULL")
+                {
+                    upper = lower;
+                }
+                if ((upper < lower) || (upper == 0 && lower == 0))
+                    throw "Invalid ranges";
+
+                prev.range = std::make_shared<Range>(lower, upper);
+            }
+            else
+                prev = Expression("OPERATOR", *i);
             stack.push_back(prev);
         }
         else if (*i == '(')

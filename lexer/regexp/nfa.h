@@ -62,7 +62,7 @@ class NFA
         std::set<int> next = {};
         for (auto pos : current)
         {
-            auto trans = states.at(pos)->transition(c);
+            auto trans = states.at(pos)->transition(c,pos);
             next.insert(trans.begin(), trans.end());
         }
         current = next;
@@ -92,7 +92,7 @@ class NFA
             std::set<int> next = {};
             for (auto pos : current)
             {
-                auto trans = states.at(pos)->transition(character);
+                auto trans = states.at(pos)->transition(character,pos);
                 next.insert(trans.begin(), trans.end());
             }
             if (next.empty())

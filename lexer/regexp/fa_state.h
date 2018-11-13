@@ -14,12 +14,12 @@ struct FAState
     {
         isFinal = false;
         isRejected = false;
-        transition = [](char a) {
+        transition = [](char a,int) {
             return std::set<int>();
         };
     }
 
-    FAState(bool isFinal, bool isRejected, std::set<int> (*transition)(char))
+    FAState(bool isFinal, bool isRejected, std::set<int> (*transition)(char,int))
     {
         this->isFinal = isFinal;
         this->isRejected = isRejected;
@@ -30,13 +30,13 @@ struct FAState
     {
         this->isFinal = isFinal;
         this->isRejected = isRejected;
-        transition = [](char a) {
+        transition = [](char a,int) {
             return std::set<int>();
         };
     }
     bool isFinal;
     bool isRejected;
-    std::function<std::set<int>(char)> transition;
+    std::function<std::set<int>(char,int)> transition;
 };
 
 #endif // FASTATE_H

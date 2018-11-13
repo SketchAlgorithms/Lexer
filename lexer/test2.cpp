@@ -12,7 +12,7 @@ void testNumbers()
 
     // NFA numberMatch = lex::regexp(R"((([1-9][0-9]*)|0)((\.[0-9][0-9]*)|#)(([Ee]([+-]|#)[0-9][0-9]*)|#))");
     // NFA numberMatch = lex::regexp(R"((([1-9][0-9]*)|0)(\.[0-9]+)?([Ee][+-]?[0-9]+)?)");
-    NFA numberMatch = lex::regexp(R"((([1-9]\d*)|0)(\.\d+)?([Ee][+-]?\d+)?)");
+    NFA numberMatch = lex::regexp(R"(([1-9]\d*|0)(\.\d+)?([Ee][+-]?\d+)?)");
 
     std::cout << "TEST: "
               << ((numberMatch.etf("1000") &&
@@ -82,6 +82,22 @@ void testOperator()
                 ? "Accepted"
                 : "Rejected");
 }
+
+void testURL()
+{
+    NFA nfa = lex::regexp(R"(http[s]?://(www\.)?[-a-zA-Z0-9@:%._\+~#=]+\.[a-z]{2,6}([/?][-a-zA-Z0-9@:%._\+~#=/&?]*))");
+    std::cout
+        << "TEST: "
+        << ((
+            // nfa.etf("https://stackoverflow.com/asdasd/asddasd") &&
+            //  nfa.etf("https://localhost:1000.com") &&
+             nfa.etf("https://insurance-subesh.netlify.com/compare/bike/third-party/price?cc=100&name=1001&reg=1001")
+             
+             ) 
+
+                ? "Accepted"
+                : "Rejected");
+}
 void Test()
 {
     utils::withTime([]() {
@@ -89,6 +105,7 @@ void Test()
         utils::withTime(testID, "IDENTIFIER");
         utils::withTime(testMultiLineComment, "MULTILINE COMMENT");
         utils::withTime(testOperator, "OPERATOR");
+        utils::withTime(testURL, "URL");
     },
                     "RUNNING TESTS");
 }
@@ -96,11 +113,14 @@ void Test()
 int main(int argc, char const *argv[])
 {
     Test();
-    NFA dfa = lex::regexp(R"([^a-z]*[a-z])", 1);
-    std::cout << dfa.etf("# \n");
-    std::cout << dfa.etf("# 1\n");
-    std::cout << dfa.etf("# 1n");
-    std::cout << dfa.etf("# 12");
-
+    NFA nfa = lex::regexp(R"(##{3,6}[^#]+)");
+    std::cout << nfa.etf("# ");
+    std::cout << nfa.etf("## ");
+    std::cout << nfa.etf("### ");
+    std::cout << nfa.etf("#### ");
+    std::cout << nfa.etf("##### ");
+    std::cout << nfa.etf("###### ");
+    std::cout << nfa.etf("####### ");
+    std::cout << nfa.etf("a");
     return 0;
 }

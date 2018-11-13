@@ -70,26 +70,26 @@ NFA nodesToSate(std::set<int> startSet, std::vector<std::pair<std::set<int>, Exp
             // If the node contains final node
             if ((*it) == finalNode)
                 isFinal = true;
+            // if already marked continue
+            if (foundTransition.find(*it) != foundTransition.end())
+                continue;
             //initializing next state
             std::set<int> transState = nodes[*it].first;
             // Transition Alphabet
             auto alphabet = nodes[*it].second;
-
-            // if already marked continue
-            if (foundAlphabet.find(alphabet.value) != foundAlphabet.end())
-                continue;
-
             // Checking if others states have transition
-            for (auto jt = mark.begin(); jt != mark.end(); ++jt)
+            for (auto jt = std::next(it); jt != mark.end(); ++jt)
             {
                 auto compareAlphabet = nodes[*jt].second;
-                if (it == jt || (foundAlphabet.find(compareAlphabet.value) != foundAlphabet.end()))
-                    continue;
 
-                if (compareAlphabet.value == alphabet.value)
+                // if the node has same alphabet
+                if (compareAlphabet.value == alphabet.value && compareAlphabet.rangeType == alphabet.rangeType && compareAlphabet.range == alphabet.range)
+                {
+                    // merge the set
                     transState.insert(nodes[*jt].first.begin(), nodes[*jt].first.end());
+                    foundTransition.insert(*jt);
+                }
             }
-            foundAlphabet.insert(alphabet.value);
             // If the set is not null
             if (transState.size())
             {
@@ -182,6 +182,25 @@ NFA directMethod(std::vector<Expression> postfix)
                 std::set<int> set = {};
                 nodes.push_back(std::make_pair(set, exp));
                 stack.push_back(node);
+            }
+        }
+        else if (exp.value == "{")
+        {
+            auto op = stack.back();
+
+            stack.pop_back();
+            (exp.range->lower != 0) ? stack.push_back(closure(op, false)) : stack.push_back(closure(op));
+            for (auto pos : op.firstPos)
+            {
+                nodes[pos].second.range = exp.range;
+                nodes[pos].second.rangeType = "START";
+            }
+            // Follow Pos
+            for (auto pos : op.lastPos)
+            {
+                nodes[pos].second.range = exp.range;
+                nodes[pos].second.rangeType = nodes[pos].second.rangeType == "START" ? "BOTH" : "END";
+                nodes[pos].first.insert(op.firstPos.begin(), op.firstPos.end());
             }
         }
         else if (exp.value == "*" || exp.value == "+")

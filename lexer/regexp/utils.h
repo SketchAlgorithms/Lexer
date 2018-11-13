@@ -48,7 +48,7 @@ bool isEscapeChar(char x)
 
 bool shouldConcat(Expression prev)
 {
-    return prev.type == "OPERAND" || prev.value == "*" || prev.value == "+" || prev.value == "?" || prev.value == ")";
+    return prev.type == "OPERAND" || prev.value == "*" || prev.value == "+" || prev.value == "?" || prev.value == ")" || prev.value == "{";
 }
 bool isBracket(char x)
 {
@@ -57,7 +57,7 @@ bool isBracket(char x)
 }
 bool isOperator(char x)
 {
-    return (x == '*' || x == '|' || x == '?' || x == '+');
+    return (x == '*' || x == '|' || x == '?' || x == '+' || x == '{');
 }
 
 bool isOperand(char x)
@@ -72,6 +72,7 @@ int precedence(char op)
     case '*':
     case '?':
     case '+':
+    case '{':
         return 4;
     case '.':
         return 3;
@@ -93,7 +94,7 @@ void withTime(T callback, std::string task = "Task")
     std::chrono::duration<double> diff = end - start;
     std::cout
         << "\n-----" << task << "-----" << std::endl
-        << task << " Completed In: " << diff.count() << " s\n\n";
+        << task << " Completed In: " << diff.count() << " s\n";
 }
 
 std::string nodeSetToString(std::set<int> set)
@@ -106,30 +107,29 @@ std::string nodeSetToString(std::set<int> set)
     });
 }
 
-std::function<std::set<int>(char)> getTransition(std::vector<std::pair<Expression, int>> trans)
+std::function<std::set<int>(char, int)> getTransition(std::vector<std::pair<Expression, int>> trans)
 {
 
-    return [trans](char alpha) {
+    return [trans](char alpha, int current = -1) {
         std::set<int> states = {};
 
         for (auto pair : trans)
         {
             auto exp = pair.first;
             auto state = pair.second;
+            const auto str = exp.value;
+            auto accepted = false;
+            const int strLength = str.length();
             if (exp.sub == "ALL")
             {
-                states.insert(state);
-                continue;
+                accepted = true;
             }
-            const auto str = exp.value;
-            const int strLength = str.length();
-            if (strLength == 1)
+            else if (strLength == 1)
             {
                 if (str.at(0) == alpha)
                 {
-                    states.insert(state);
+                    accepted = true;
                 }
-                continue;
             }
             else
             {
@@ -138,7 +138,7 @@ std::function<std::set<int>(char)> getTransition(std::vector<std::pair<Expressio
                 auto negated = false;
                 for (int i = 0; i < strLength; ++i)
                 {
-                    if (str[0] == '^')
+                    if (str[i] == '^' && i == 0)
                     {
                         negated = true;
                         continue;
@@ -165,34 +165,80 @@ std::function<std::set<int>(char)> getTransition(std::vector<std::pair<Expressio
                     auto test = true;
                     if (group.find(alpha) != group.end())
                     {
-                        continue;
+                        test = false;
                     }
-                    for (auto range : ranges)
+                    else
                     {
-                        if (alpha >= range[0] && alpha <= range[1])
+                        for (auto range : ranges)
                         {
-                            test = false;
-                            break;
+                            if (alpha >= range[0] && alpha <= range[1])
+                            {
+                                test = false;
+                                break;
+                            }
                         }
                     }
                     if (test)
-                        states.insert(state);
+                        accepted = true;
                 }
                 else
                 {
                     if (group.find(alpha) != group.end())
                     {
-                        states.insert(state);
-                        continue;
+                        accepted = true;
                     }
-                    for (auto range : ranges)
+                    else
                     {
-                        if (alpha >= range[0] && alpha <= range[1])
+                        for (auto range : ranges)
                         {
-                            states.insert(state);
-                            break;
+                            if (alpha >= range[0] && alpha <= range[1])
+                            {
+                                accepted = true;
+                                break;
+                            }
                         }
                     }
+                }
+            }
+            if (accepted)
+            {
+                if (exp.rangeType != "")
+                {
+
+                    
+                    if (exp.rangeType == "END" || exp.rangeType == "BOTH")
+                    {
+                        exp.range->counter++;
+                        // std::cout << std::endl
+                        //           << "COUNTER: " << exp.range->counter << " " << alpha << std::endl;
+                        if (exp.range->counter < exp.range->lower)
+                        {
+                            states.insert(current);
+                        }
+                        else if (!(exp.range->counter > exp.range->upper))
+                        {
+                            states.insert(state);
+                        }
+                        else
+                        {
+                            exp.range->counter = 0;
+                        }
+
+                        
+                    }
+                }
+                else
+                {
+
+                    states.insert(state);
+                }
+            }
+            else
+            {
+                if (exp.rangeType == "START" || exp.rangeType == "BOTH")
+                {
+                    // if (current != state)
+                    exp.range->counter = 0;
                 }
             }
         }
