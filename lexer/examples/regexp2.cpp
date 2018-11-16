@@ -115,17 +115,15 @@ void Test()
 int main(int argc, char const *argv[])
 {
     // Test();
-
-    NFA nfa = lex::regexp(R"(.*[^\n][^\n]|[^\n]*\n?)");
-    std::cout << nfa.etf("a");
-    std::cout << nfa.etf("\n");
+    NFA nfa = lex::regexp(R"(#{1,6}(( |\t).*)?\n|.*\n *(-+|=+) *\n)");
+    std::cout << nfa.etf("# #\n");
     std::cout << nfa.etf("## #\n");
     std::cout << nfa.etf("### #\n");
     std::cout << nfa.etf("#### #\n");
     std::cout << nfa.etf("##### #\n");
     std::cout << nfa.etf("###### #\n");
-    std::cout << nfa.etf("\n\n asdas");
-    std::cout << nfa.etf("aa\n\n");
+    std::cout << nfa.etf("####### #\n");
+    std::cout << nfa.etf("a");
     std::cout << nfa.etf(R"(Subesh
     ==
 )");

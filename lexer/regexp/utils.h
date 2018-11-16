@@ -146,7 +146,7 @@ std::function<std::set<int>(char, int)> getTransition(std::vector<std::pair<Expr
                     if (str[i] == '\\')
                     {
                         ++i;
-                        group.insert(str[i]);
+                        group.insert(getEscapeChar(str[i]).at(0));
                         continue;
                     }
 
@@ -205,7 +205,6 @@ std::function<std::set<int>(char, int)> getTransition(std::vector<std::pair<Expr
                 if (exp.rangeType != "")
                 {
 
-                    
                     if (exp.rangeType == "END" || exp.rangeType == "BOTH")
                     {
                         exp.range->counter++;
@@ -223,8 +222,6 @@ std::function<std::set<int>(char, int)> getTransition(std::vector<std::pair<Expr
                         {
                             exp.range->counter = 0;
                         }
-
-                        
                     }
                 }
                 else

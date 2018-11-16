@@ -11,10 +11,10 @@ class NFA
     std::vector<std::shared_ptr<FAState>> states;
     std::shared_ptr<FAState> start;
     std::set<int> current;
-    bool isAccepted;
-    bool isRejected;
 
   public:
+    bool isAccepted;
+    bool isRejected;
     explicit NFA()
     {
     }
@@ -28,6 +28,7 @@ class NFA
         if (states.size())
         {
             this->states = states;
+            resetCurrent();
         }
         else
         {
@@ -56,31 +57,26 @@ class NFA
 
     bool next(char c)
     {
-        auto current = this->current;
         isRejected = true;
         isAccepted = false;
         std::set<int> next = {};
         for (auto pos : current)
         {
-            auto trans = states.at(pos)->transition(c,pos);
+            auto trans = states.at(pos)->transition(c, pos);
             next.insert(trans.begin(), trans.end());
         }
         current = next;
-
-        for (auto pos : next)
+        for (auto pos : current)
         {
+            isRejected = false;
             if (states.at(pos)->isFinal)
             {
                 isAccepted = true;
                 break;
             }
-            if (!states.at(pos)->isRejected)
-            {
-                isRejected = false;
-            }
         }
 
-        return isRejected;
+        return !isRejected;
     }
 
     bool etf(std::string input)
@@ -92,7 +88,7 @@ class NFA
             std::set<int> next = {};
             for (auto pos : current)
             {
-                auto trans = states.at(pos)->transition(character,pos);
+                auto trans = states.at(pos)->transition(character, pos);
                 next.insert(trans.begin(), trans.end());
             }
             if (next.empty())
